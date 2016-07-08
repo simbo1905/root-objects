@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+
+    <!--
+    Spring solution:
+    The following persistence unit has nothing defined in it. All the properties to
+    run it including the datasource are defined on the entityManagerFactory bean
+    in the default.datasource-context.xml file.
+    -->
+    <persistence-unit name="reminderDatabase" transaction-type="RESOURCE_LOCAL" />
+</persistence>

@@ -1,0 +1,11 @@
+<diagram program="umletino" version="14.2"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>110</x><y>100</y><w>210</w><h>40</h></coordinates><panel_attributes>&lt;&lt;Root Entity&gt;&gt;
+Contract
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>130</y><w>60</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>40;10;10;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>220</y><w>100</w><h>30</h></coordinates><panel_attributes>Delivery</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>130</y><w>70</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;50;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>270</x><y>220</y><w>100</w><h>30</h></coordinates><panel_attributes>LineItem
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>260</x><y>300</y><w>140</w><h>60</h></coordinates><panel_attributes>&lt;&lt;Root Entity&gt;&gt;
+Product
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>320</x><y>240</y><w>40</w><h>80</h></coordinates><panel_attributes>lt=&lt;-
+m1=1</panel_attributes><additional_attributes>10;60;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>160</x><y>220</y><w>130</w><h>40</h></coordinates><panel_attributes>lt=&lt;-&gt;
+</panel_attributes><additional_attributes>110;20;10;20</additional_attributes></element><element><id>UMLNote</id><coordinates><x>80</x><y>300</y><w>140</w><h>70</h></coordinates><panel_attributes>A line item can only be 
+in one delivery. 
+A delivery can have 
+many line items. </panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>150</x><y>230</y><w>90</w><h>90</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>70;10;10;70</additional_attributes></element></diagram>

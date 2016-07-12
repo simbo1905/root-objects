@@ -1,4 +1,4 @@
-package com.github.simbo1905.rootobjects;
+package com.github.simbo1905.rootobjects.contract;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

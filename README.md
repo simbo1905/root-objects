@@ -120,7 +120,7 @@ implementation detail that should be hidden from code that uses our object model
 
 Lets have a look a relational table model that goes the UML model above: 
 
-![root objects](root-objects2.png "Root Objects 2")
+![root objects2](root-objects2.png "Root Objects 2")
 
 The major difference is that we have one more database tables than we 
 have UML entities. The alien in the room is `delivery_lineitem` which is a 

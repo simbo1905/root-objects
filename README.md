@@ -137,10 +137,17 @@ don't really need `contract_id` on the join table; it needs only two
 columns which can be the primary key. The reason that the table has the 
 `contract_id` is so that JPA can "see" the join table entities as part of 
 the `contract` root object to load them when ever we load the `contract`. 
-Another compromise is that if you run the code it creates the join table with 
-a fourth column which is a generated primary key. Why? Because JPA put up 
-a fight when I tried to create any type of compound primary key out of 
-existing fields and if you fight JPA you loose (your mind). 
+
+Another compromise is that if you run the unit tests they create the join 
+table with a fourth column which is a generated primary key. Why? Because 
+JPA put up a fight when I tried to create any type of compound primary key 
+out of two fields and if you fight JPA you mostly loose (your mind). Do I 
+care that has two more columns than a database designer would use? A little  
+but I probably have better things to be doing with my time than optimising 
+a few bytes away when database servers now have terabytes of disk and hundreds 
+of gigs of memory. From a code perspective every collection is mapped the same 
+way so optimising the join table with distinct JPA code makes the solution 
+more complex to maintain. Whatever. 
 
 Why is the join entity an alien? Because in our example it wasn't in the UML 
 model as wasn't discovered in the elaboration of the domain model with the 

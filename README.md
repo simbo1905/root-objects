@@ -142,7 +142,7 @@ Another compromise is that if you run the unit tests they create the join
 table with a fourth column which is a generated primary key. Why? Because 
 JPA put up a fight when I tried to create any type of compound primary key 
 out of two fields and if you fight JPA you mostly loose (your mind). Do I 
-care that has two more columns than a database designer would use? A little  
+care that has two more columns than a database designer would use? A little 
 but I probably have better things to be doing with my time than optimising 
 a few bytes away when database servers now have terabytes of disk and hundreds 
 of gigs of memory. From a code perspective every collection is mapped the same 
@@ -162,7 +162,7 @@ book work in sync, into this "all things contract related" class:
  1. We add a Java class entity for the join table but don't make it a public class. 
  2. We don't let code directly manipulate the list of lineitems within a delivery. 
   We ask the contract to do the work. The contract can create or remove a 
-   join entity and also update the list of lineitems withing the delivery.
+   join entity and also update the list of lineitems within the delivery.
  3. We add a `@PostLoad` to the contract that is run immediately after JPA has 
  loaded a contract, its deliveries, its lineitems, and its join table entities 
  from the db. In that method we can scan the list of join table entities 
@@ -174,13 +174,12 @@ So that is three things the `contact` root entity is doing:
  2. Ensuring that a `lineitem` can only be in one delivery. 
  3. Ensuring that the alien join entity isn't exposed to the outside world. 
 
-All of the above nicely illustates the power of the aggregate and root entity 
-concepts. We can create a java package per root entity, with a service or 
-system class that lets you load the root object only, force code outside 
-of the package to use methods on the root object, and the root object can 
-enforce that everything is maintained in a proper state and that we don't 
-get corruptions of the state of the aggregate set of objects that the root 
-entity controls. 
+All of the above nicely illustrates the power of the aggregate and root entity 
+concepts. We can create a java package per root entity with a service or 
+system class that lets you load the root object only.  Force code outside 
+of the package to use methods on the root object. Then the root object can 
+enforce that everything is maintained in a proper state so that we don't 
+get corruptions of the state across the aggregated entities. 
  
 How do we stop code outside of the `contract` package from corrupting 
 the relationships by adding or removing lineitems from deliveries without 
@@ -202,8 +201,9 @@ that lets you get at items in the list but throws an exception if you try
 to modify the list. Ninja. The net result is that you can "see" both 
 `contract`, `lineitem` and `delivery` objects outside of the package that 
 they are defined in, but you have to call methods on the `contract` objects 
-to modify anything. To load and save contract objects you use a `ContractServce` 
-system class that has methods to query the database to load contracts. 
+to modify anything. To load and save contract objects you use a public 
+`ContractServce` system class that has methods to query the database to 
+load contracts. 
 
 ### Concluding remarks
 
@@ -229,10 +229,11 @@ vast majority of Java developers. This is an epic fail. Package private is
 awesome as you can put your test code into the same package to be able to 
 setup and verify fine grained unit test code whilst only exposing a minimal 
 public API to code outside of the package. The unit tests in this sample 
-code demonstrate the approach. 
+code demonstrate this approach. 
 
 The optimal package layout for DDD is one where the compiler enforces 
-boundaries that separate concepts within the business domain.  
+boundaries that separate concepts within the business domain. Package private 
+by default and a minimal public API is a great tool to achieve this. 
 
 ### See Also
 

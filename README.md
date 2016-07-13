@@ -12,6 +12,13 @@ A quick introduction to the entities, aggregates, value objects and roots
 with a links into the seminal textbook Domain Driven Design by 
 Eric Evans is [here](https://lostechies.com/jimmybogard/2008/05/21/entities-value-objects-aggregates-and-roots/). 
 
+
+### Running The Code
+
+The code is written using IntelliJ communit edition. Create a new project from source selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
+
+You can build the code with commandline maven but for some reason the unit test isn't being run automatically. 
+
 ### The Problem Space
 
 The following image shows the toy modelling problem: 
@@ -125,12 +132,20 @@ Lets have a look at the relational table model that goes the UML model above:
 The major difference is that we have one more database table than we 
 have UML entities. The alien in the room is `delivery_lineitem` which is a 
 join table between `delivery` and `lineitem` which records that a line 
-item has been put into a delivery. 
+item has been put into a delivery. Note that in the relational world we 
+don't really need `contract_id` on the join table; it needs only two 
+column which would have been the primary key. The reason that the table 
+has the `contract_id` is so that JPA can "see" the join entities as part 
+of the `contract` root object to load them when ever we load the `contract`. 
+Another compromise is that if you run the code it creates the join table with 
+a seperate primary key column. Why? Because JPA put put a fight when I tried 
+to create any type of compound primary key out of existing fields and if 
+fight JPA you loose (your mind). 
 
-Why is it an alien? Because in our example it wasn't in the UML model as 
-wasn't discovered in the elaboration of the domain model with the users. If 
-it was a "real thing" the users would have given it a name and talked about 
-it having tangible attributes such that it would be in the UML model. So 
+Why is the join entity an alien? Because in our example it wasn't in the UML 
+model as wasn't discovered in the elaboration of the domain model with the 
+users. If it was a "real thing" the users would have given it a name and talked 
+about it having tangible attributes such that it would be in the UML model. So 
 it's only an technical artifact of the relational model.
 
 How do we handle this? We make the `contract` the responsible class and 

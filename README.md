@@ -12,12 +12,11 @@ A quick introduction to the entities, aggregates, value objects and roots
 with a links into the seminal textbook Domain Driven Design by 
 Eric Evans is [here](https://lostechies.com/jimmybogard/2008/05/21/entities-value-objects-aggregates-and-roots/). 
 
-
 ### Running The Code
 
-The code is written using IntelliJ communit edition. Create a new project from source selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
+The code is written using IntelliJ community edition. Create a new project from source selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
 
-You can build the code with commandline maven but for some reason the unit test isn't being run automatically. 
+You can build the code with commandline maven but for some reason the unit test isn't being run automatically. Since the purpose is to read the code not use it as a template or library fixing this is low priority to me. 
 
 ### The Problem Space
 
@@ -30,26 +29,27 @@ The following image shows the toy modelling problem:
  1. A `delivery` to a location has a number of `lineitems`
  1. A `lineitem` names a quantity of a given `product` within a `contract`
  1. A `lineitem` can only be in zero or one `deliveries`
- 1. Altering the `lineitems` within a `contract`updates the total cost of a contract
+ 1. Altering the `lineitems` within a `contract` updates the total cost of a contract
 
-A `lineitem` can be in zero `deliveries` is so that a customer 
-can decide upon the products and even pay for a contract independently of 
+A `lineitem` can be in zero `deliveries` so that a customer can 
+decide upon the products and even pay for a contract independently of 
 arranging for one or more `deliveries`. 
 
 Note that `Money` is a value object type. It has no identity so its not 
-an entity.  
+an entity. I wont be discussing value object further as they are not 
+a complex concept. 
 
 Note that in the diagram the lines with the black diamonds on the end denote 
-UML "composition". To quote wikipedia: 
+UML "composition". To quote wikipedia (ephasis mine and with very minor edits): 
 
 > Composition is a kind of association where the composite object has 
 > sole responsibility for the disposition of the component parts. 
 > The relationship between the composite and the component is a strong 
 > “has a” relationship, as the composite object takes ownership of the 
-> component. This means the composite is responsible for the creation and 
-> destruction of the component parts. An object may only be part of one 
-> composite. If the composite object is destroyed, all the component parts 
-> must be destroyed. 
+> component. This means the composite is responsible for the **creation and 
+> destruction** of the component parts. A [contained] object may only be part 
+> of one composite. If the composite object is destroyed, all the [contained  
+> objects] must be destroyed 
 
 Simply put we are saying that the `contract` owns and controls both the `deliveries` and 
 `lineitems` that it contains. If the `contract` gets cancelled or deleted then 
@@ -60,7 +60,7 @@ would add a status field to `contract` such as "draft"/"signed" and perhaps
 add a version number field if we are allowed to amend a signed contract). 
 
 The `product` and `contract` classes are labelled as root entities. To 
-quote the blog page at the link above 
+quote the blog page at the link above: 
 
 > Aggregates draw a boundary around one or more Entities.  
 > An Aggregate enforces invariants for all its Entities 
@@ -188,15 +188,44 @@ The following code show how the list of lineitems in a delivery is declared:
     }
 
 That syntax says we have a non-public list (invisible outside of the 
-Java package) that is transient (JPA wont try to save it that list into 
-the datbase its a list maintained by Java logic only). The getter that 
-returns the list wraps it in an unmodifiable list. Thats a proxy object 
+Java package) that is transient (JPA wont try to save it into 
+the database) as it is maintained entirely by Java logic. The getter that 
+returns the list wraps it in an unmodifiable list. That is a proxy object 
 that lets you get at items in the list but throws an exception if you try 
 to modify the list. Ninja. The net result is that you can "see" both 
 `contract`, `lineitem` and `delivery` objects outside of the package that 
 they are defined in, but you have to call methods on the `contract` objects 
 to modify anything. To load and save contract objects you use a `ContractServce` 
 system class that has methods to query the database to load contracts. 
+
+### Concluding remarks
+
+The source code has very few public classes or methods. This is unsual 
+for Java projects. Typically Java projects have package layouts that 
+model the solution; "this package has all the entities, that package has all 
+database related code, that package is all the services code". That approach 
+forces you to make almost everthing public. In the long term on a big project 
+brittle connections are made across business responsibility boundaries. There 
+is no way the compiler can enforce boundaries that align to the business 
+domain. 
+
+With DDD you model the problem space not the solution; "this package 
+is everything to support contracts, that package holds everything for  
+products, that package is all about customers". Then you can be very strict 
+and only expose the service classes, root entities, and core business 
+concepts, and force client code to go via a narrow public API. This helps 
+keep bugs at bay and allows you to add or refactor logic with confidence. 
+
+Java didn't make `public` the default it made `package private` the default. 
+Tragically that excellent hint how to write good OO code is ignored by the 
+vast majority of Java developers. This is an epic fail. Package private is 
+awesome as you can put your test code into the same package to be able to 
+setup and verify fine grained unit test code whilst only exposing a minimal 
+public API to code outside of the package. The unit tests in this sample 
+code demonstrate the approach. 
+
+The optimal package layout for DDD is one where the compiler enforces 
+boundaries that separate concepts within the business domain.  
 
 ### See Also
 

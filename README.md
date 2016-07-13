@@ -139,8 +139,8 @@ columns which can be the primary key. The reason that the table has the
 the `contract` root object to load them when ever we load the `contract`. 
 Another compromise is that if you run the code it creates the join table with 
 a fourth column which is a generated primary key. Why? Because JPA put up 
-a fight when I tried to create any type of compound primary key out of e
-xisting fields and if fight JPA you loose (your mind). 
+a fight when I tried to create any type of compound primary key out of 
+existing fields and if you fight JPA you loose (your mind). 
 
 Why is the join entity an alien? Because in our example it wasn't in the UML 
 model as wasn't discovered in the elaboration of the domain model with the 
@@ -150,7 +150,7 @@ it's only an technical artifact of the relational model.
 
 How do we handle this? We make the `contract` the responsible class and 
 put both the business logic, and the logic to keep the object and relational 
-book work in sync, into this "all things contract related class": 
+book work in sync, into this "all things contract related" class: 
 
  1. We add a Java class entity for the join table but don't make it a public class. 
  2. We don't let code directly manipulate the list of lineitems within a delivery. 
@@ -160,7 +160,13 @@ book work in sync, into this "all things contract related class":
  loaded a contract, its deliveries, its lineitems, and its join table entities 
  from the db. In that method we can scan the list of join table entities 
  to know now to recover the state of the list of lineitems in each delivery.
-   
+
+So that is three things the `contact` root entity is doing: 
+
+ 1. Ensuring that the total cost is kept up to date. 
+ 2. Ensuring that a `lineitem` can only be in one delivery. 
+ 3. Ensuring that the alien join entity isn't exposed to the outside world. 
+
 All of the above nicely illustates the power of the aggregate and root entity 
 concepts. We can create a java package per root entity, with a service or 
 system class that lets you load the root object only, force code outside 
@@ -171,7 +177,7 @@ entity controls.
  
 How do we stop code outside of the `contract` package from corrupting 
 the relationships by adding or removing lineitems from deliveries without 
-going the methods on contract which ensure the join table is kept in sync? 
+going via methods on contract which ensure the join table is kept in sync? 
 The following code show how the list of lineitems in a delivery is declared: 
     
     @Transient

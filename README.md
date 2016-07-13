@@ -69,8 +69,8 @@ query and load `deliveries` or `line items` directly. Is that the
 right things to do? Test it out with your users if they are always talking about working 
 with a contract to manage its line items and deliveries then yes. If they 
 are asking you to build screens that work primarily with deliveries and 
-you discover that you can move a delivery between contracts then the design 
-above is incorrect. 
+you discover that you can move a delivery between contracts then you 
+may need to make `delivery` a root entity. 
 
 Consider the business rule that altering the `lineitems` with a `contract`
 updates the total cost of a contract. Expressed another way it says that 
@@ -109,7 +109,7 @@ a concept with many traps and limited utility but that is an entirely
 different topic. A lot of developers think that working with an RDBM isn't 
 at all agile. If you let JPA create tables into an in-memory java database 
 then it can be very agile and only a matter of changing the configuration 
-to switch betwen unit tests running against an in-memory Java database and 
+to switch betwen unit tests running against an in-memory Java database  
 and a beefy database server. 
 
 Also if there is any ugliness due to our use of JPA then we can use that to 
@@ -118,13 +118,13 @@ implementation detail that should be hidden from code that uses our object model
 
 ### The Implementation
 
-Lets have a look a relational table model that goes the UML model above: 
+Lets have a look at the relational table model that goes the UML model above: 
 
 ![root objects2](root-objects2.png "Root Objects 2")
 
-The major difference is that we have one more database tables than we 
+The major difference is that we have one more database table than we 
 have UML entities. The alien in the room is `delivery_lineitem` which is a 
-join table between `delivery` and `lineitem` which records when a line 
+join table between `delivery` and `lineitem` which records that a line 
 item has been put into a delivery. 
 
 Why is it an alien? Because in our example it wasn't in the UML model as 
@@ -168,7 +168,7 @@ The following code show how the list of lineitems in a delivery is declared:
 
 That syntax says we have a non-public list (invisible outside of the 
 Java package) that is transient (JPA wont try to save it that list into 
-the datbase its a list maintained by Java logic only. The getter that 
+the datbase its a list maintained by Java logic only). The getter that 
 returns the list wraps it in an unmodifiable list. Thats a proxy object 
 that lets you get at items in the list but throws an exception if you try 
 to modify the list. Ninja. The net result is that you can "see" both 

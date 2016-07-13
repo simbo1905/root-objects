@@ -116,8 +116,8 @@ a concept with many traps and limited utility but that is an entirely
 different topic. A lot of developers think that working with an RDBM isn't 
 at all agile. If you let JPA create tables into an in-memory java database 
 then it can be very agile and only a matter of changing the configuration 
-to switch betwen unit tests running against an in-memory Java database  
-and a beefy database server. 
+to switch betwen unit tests running against an in-memory Java database or a 
+beefy database server. 
 
 Also if there is any ugliness due to our use of JPA then we can use that to 
 illustrate a point in this demo: that the database and its mapping is an 
@@ -134,13 +134,13 @@ have UML entities. The alien in the room is `delivery_lineitem` which is a
 join table between `delivery` and `lineitem` which records that a line 
 item has been put into a delivery. Note that in the relational world we 
 don't really need `contract_id` on the join table; it needs only two 
-column which would have been the primary key. The reason that the table 
-has the `contract_id` is so that JPA can "see" the join entities as part 
-of the `contract` root object to load them when ever we load the `contract`. 
+columns which can be the primary key. The reason that the table has the 
+`contract_id` is so that JPA can "see" the join table entities as part of 
+the `contract` root object to load them when ever we load the `contract`. 
 Another compromise is that if you run the code it creates the join table with 
-a seperate primary key column. Why? Because JPA put put a fight when I tried 
-to create any type of compound primary key out of existing fields and if 
-fight JPA you loose (your mind). 
+a fourth column which is a generated primary key. Why? Because JPA put up 
+a fight when I tried to create any type of compound primary key out of e
+xisting fields and if fight JPA you loose (your mind). 
 
 Why is the join entity an alien? Because in our example it wasn't in the UML 
 model as wasn't discovered in the elaboration of the domain model with the 

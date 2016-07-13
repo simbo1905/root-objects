@@ -198,9 +198,11 @@ Java package) that is transient (JPA wont try to save it into
 the database) as it is maintained entirely by Java logic. The getter that 
 returns the list wraps it in an unmodifiable list. That is a proxy object 
 that lets you get at items in the list but throws an exception if you try 
-to modify the list. Ninja. The net result is that you can "see" both 
+to modify the list. Ninja. 
+
+By applying the same approach everywhere we arrange it so that you can "see" both 
 `contract`, `lineitem` and `delivery` objects outside of the package that 
-they are defined in, but you have to call methods on the `contract` objects 
+they are defined in; but you have to call methods on the `contract` objects 
 to modify anything. To load and save contract objects you use a public 
 `ContractServce` system class that has methods to query the database to 
 load contracts. 
@@ -217,7 +219,7 @@ is no way the compiler can enforce boundaries that align to the business
 domain. 
 
 With DDD you model the problem space not the solution; "this package 
-is everything to support contracts, that package holds everything for  
+is everything to support contracts, that package holds everything for 
 products, that package is all about customers". Then you can be very strict 
 and only expose the service classes, root entities, and core business 
 concepts, and force client code to go via a narrow public API. This helps 

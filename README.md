@@ -113,11 +113,16 @@ isn't a serious bit of technology that has had a huge amount of investment
 in it. It is because of the famous [object to relational impedance mis-match](https://en.wikipedia.org/wiki/Object-relational_impedance_mismatch). 
 Functional programmers will say that the problem is actually that OO is 
 a concept with many traps and limited utility but that is an entirely 
-different topic. A lot of developers think that working with an RDBM isn't 
-at all agile. If you let JPA create tables into an in-memory java database 
-then it can be very agile and only a matter of changing the configuration 
-to switch betwen unit tests running against an in-memory Java database or a 
-beefy database server. 
+different topic. 
+
+A lot of developers think that working with an RDBM isn't at all agile. 
+You can let JPA create tables into an in-memory java database for JUnit 
+testing as you write the code. This can be very agile. This demo code does 
+exactly In a real application it is then only a matter of packaging another 
+configuration that is deployed to point JPA at a beefy industrial 
+database server. Having worked on a few projects that did that we ran into 
+very few challenges with differences in behaviour between the Java RDBMS 
+and the commercial database server that were trivial to work-around. 
 
 Also if there is any ugliness due to our use of JPA then we can use that to 
 illustrate a point in this demo: that the database and its mapping is an 
@@ -207,13 +212,65 @@ to modify anything. To load and save contract objects you use a public
 `ContractServce` system class that has methods to query the database to 
 load contracts. 
 
+### Pro-Tips For Industrial Strength Financial Code
+
+Aggregate roots and the OO approach outlined in this sample app make it 
+very easy to add industrial strength features: 
+
+**Audit Everything.** Root entities make it easier to keep and access a 
+full audit train. Just add:
+
+ * `int version` (make this part of a compound primary key of the entity)
+ * `Date modifiedAt` 
+ * `String modifiedBy` 
+ * `Date deletedAt` 
+ * `String deletedBy`
+
+Have the root entity at every mutation or deletion simply create 
+a copy of the entity that updates these fields. In all the normal getters 
+filter to show only the highest version of each entity. You can also add 
+methods that see the historic versions. Why? So that you can write audit 
+screens that can access all versions of all entities in the aggregate. You 
+can now write admin screens to show the full audit trail of who did what 
+to all entities in the system. 
+
+A good audit trail is a killer feature for any system that handles serious 
+amounts of money. You can also add a "restore to date" feature so that a user 
+can reverse out changes to the system easily and in an auditable way. 
+Such killer features that are easy to add when using the techniques 
+documented here but are very expensive to code into a system that isn't 
+using these techniques. Such logic sits nicely into the service classes 
+that can update the version fields of the root entities when saving them, 
+can then query for a list of versions and modification dates, and finally 
+load a specific version of a root entity. The root entities themselves 
+have the logic to version the entities of the objects they control and 
+can have getter methods that take a date to be able to filter entities 
+in the aggregate that we current at that date. 
+
+**Use A Locking Pattern.** Add either optimistic, or both pessimistic 
+and optimistic locking capabilities, into every root entity. This is 
+remarkably easy as all modifications go via the root entity and saving 
+and updating always saves the root entity. So you only need to put fields 
+to support these patterns in the root entities. JPA has locking features 
+that easily generate the queries for you. 
+
+I have used the built in optimistic locking and it was simple and easy. 
+With pessimistic locking we had custom logic to tell the users things were 
+locked and to let them break locks. This was implemented it as normal fields 
+on the root entities and "obvious" queries and logic in the service classes 
+to query the lock fields and to honour them unless the user told the service 
+class to break the lock. The service class could easily audit that the lock 
+was overruled. If you let people override pessimistic locks then you should 
+use optimistic locking to stop two users doing updates to the same root 
+entity with a broken clashing. 
+
 ### Concluding remarks
 
 The source code has very few public classes or methods. This is unsual 
 for Java projects. Typically Java projects have package layouts that 
 model the solution; "this package has all the entities, that package has all 
 database related code, that package is all the services code". That approach 
-forces you to make almost everthing public. In the long term on a big project 
+forces you to make almost everything public. In the long term on a big project 
 brittle connections are made across business responsibility boundaries. There 
 is no way the compiler can enforce boundaries that align to the business 
 domain. 
@@ -224,12 +281,15 @@ products, that package is all about customers". Then you can be very strict
 and only expose the service classes, root entities, and core business 
 concepts, and force client code to go via a narrow public API. This helps 
 keep bugs at bay and allows you to add or refactor logic with confidence. 
+It also makes it easy to add sophisticated and professional features like 
+locking patterns, audit trails, and "restore to date" features just inside 
+of the narrow public API. 
 
 Java didn't make `public` the default it made `package private` the default. 
-Tragically that excellent hint how to write good OO code is ignored by the 
+Tragically that excellent hint how to write good OO/DDD code is ignored by the 
 vast majority of Java developers. This is an epic fail. Package private is 
 awesome as you can put your test code into the same package to be able to 
-setup and verify fine grained unit test code whilst only exposing a minimal 
+setup and verify fine grained unit tests whilst only exposing a minimal 
 public API to code outside of the package. The unit tests in this sample 
 code demonstrate this approach. 
 

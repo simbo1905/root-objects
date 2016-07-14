@@ -14,9 +14,9 @@ Eric Evans is [here](https://lostechies.com/jimmybogard/2008/05/21/entities-valu
 
 ### Running The Code
 
-The code is written using IntelliJ community edition. Create a new project from source selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
+The code is written using IntelliJ community edition. Create a new project "from source" selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
 
-You can build the code with commandline maven but for some reason the unit test isn't being run automatically. Since the purpose is to read the code not use it as a template or library fixing this is low priority to me. 
+You can build the code with commandline maven but for some reason the unit test isn't being run automatically. Since the idea is to read the code not use it as a template or library fixing this is low priority to me. 
 
 ### The Problem Space
 
@@ -26,8 +26,8 @@ The following image shows the toy modelling problem:
 
  1. A `contract` has many `lineitems` 
  1. A `contract` has many `deliveries` 
- 1. A `delivery` to a location has a number of `lineitems`
- 1. A `lineitem` names a quantity of a given `product` within a `contract`
+ 1. A `delivery` to a location contains some `lineitems`
+ 1. A `lineitem` is a quantity of a given `product` within a `contract`
  1. A `lineitem` can only be in zero or one `deliveries`
  1. Altering the `lineitems` within a `contract` updates the total cost of a contract
 
@@ -36,7 +36,7 @@ decide upon the products and even pay for a contract independently of
 arranging for one or more `deliveries`. 
 
 Note that `Money` is a value object type. It has no identity so its not 
-an entity. I wont be discussing value object further as they are not 
+an entity. I wont be discussing value objects further as they are not 
 a complex concept. 
 
 Note that in the diagram the lines with the black diamonds on the end denote 
@@ -55,9 +55,7 @@ Simply put we are saying that the `contract` owns and controls both the `deliver
 `lineitems` that it contains. If the `contract` gets cancelled or deleted then 
 all the `lineitems` are cancelled and deleted. Also in this eample updating 
 the quantity of a `product` in the `contract` or adding and removing `deliveries` 
-to the `contract` implies we are updating the `contract`. (In the real world we 
-would add a status field to `contract` such as "draft"/"signed" and perhaps 
-add a version number field if we are allowed to amend a signed contract). 
+to the `contract` implies we are updating the `contract`.  
 
 The `product` and `contract` classes are labelled as root entities. To 
 quote the blog page at the link above: 
@@ -79,7 +77,7 @@ are asking you to build screens that work primarily with deliveries and
 you discover that you can move a delivery between contracts then you 
 may need to make `delivery` a root entity. 
 
-Consider the business rule that altering the `lineitems` with a `contract`
+Consider the business rule that altering the `lineitems` within a `contract`
 updates the total cost of a contract. Expressed another way it says that 
 it is a rule (aka an invariant) that the total cost field of the contract 
 is sum of the cost of the individual line items within the contract. Which 
@@ -116,17 +114,19 @@ a concept with many traps and limited utility but that is an entirely
 different topic. 
 
 A lot of developers think that working with an RDBM isn't at all agile. 
-You can let JPA create tables into an in-memory java database for JUnit 
-testing as you write the code. This can be very agile. This demo code does 
-exactly In a real application it is then only a matter of packaging another 
-configuration that is deployed to point JPA at a beefy industrial 
-database server. Having worked on a few projects that did that we ran into 
-very few challenges with differences in behaviour between the Java RDBMS 
-and the commercial database server that were trivial to work-around. 
+Yet you can have JPA create tables into an in-memory java database for JUnit 
+testing as you write the code. That is pretty agile. This demo code does 
+exactly that. It is then only a matter of packaging and deploying a different 
+configuration point your application at a beefy industrial database server. 
+Having worked on a few projects that did that we ran into very few challenges 
+with differences in behaviour between the Java RDBMS and the commercial 
+database server that were trivial to work-around. 
 
 Also if there is any ugliness due to our use of JPA then we can use that to 
 illustrate a point in this demo: that the database and its mapping is an 
 implementation detail that should be hidden from code that uses our object model. 
+So the ugliness isn't exposed to users of the entities it is kept as an 
+hidden implementation detail. 
 
 ### The Implementation
 
@@ -138,7 +138,7 @@ The major difference is that we have one more database table than we
 have UML entities. The alien in the room is `delivery_lineitem` which is a 
 join table between `delivery` and `lineitem` which records that a line 
 item has been put into a delivery. Note that in the relational world we 
-don't really need `contract_id` on the join table; it needs only two 
+don't really need `contract_id` on the join table; it only needs two 
 columns which can be the primary key. The reason that the table has the 
 `contract_id` is so that JPA can "see" the join table entities as part of 
 the `contract` root object to load them when ever we load the `contract`. 
@@ -152,13 +152,15 @@ but I probably have better things to be doing with my time than optimising
 a few bytes away when database servers now have terabytes of disk and hundreds 
 of gigs of memory. From a code perspective every collection is mapped the same 
 way so optimising the join table with distinct JPA code makes the solution 
-more complex to maintain. Whatever. 
+more complex to maintain. Lazy or pragmatic? Whatever. 
 
 Why is the join entity an alien? Because in our example it wasn't in the UML 
-model as wasn't discovered in the elaboration of the domain model with the 
+model as it wasn't discovered in the elaboration of the domain model with the 
 users. If it was a "real thing" the users would have given it a name and talked 
-about it having tangible attributes such that it would be in the UML model. So 
-it's only an technical artifact of the relational model.
+about it having tangible attributes and we would have added it to the UML model. 
+So it's only an technical artifact of the relational model. We should hide it 
+and not make it part of the public API. Why? Because it is not part of our 
+problem domain and with DDDD we model the problem not the solution. 
 
 How do we handle this? We make the `contract` the responsible class and 
 put both the business logic, and the logic to keep the object and relational 
@@ -229,40 +231,41 @@ full audit train. Just add:
 Have the root entity at every mutation or deletion simply create 
 a copy of the entity that updates these fields. In all the normal getters 
 filter to show only the highest version of each entity. You can also add 
-methods that see the historic versions. Why? So that you can write audit 
-screens that can access all versions of all entities in the aggregate. You 
-can now write admin screens to show the full audit trail of who did what 
-to all entities in the system. 
+methods that see the historic versions. Why? So that you can write admin 
+screens to show the full audit trail of who did what to all entities in 
+the system. 
 
 A good audit trail is a killer feature for any system that handles serious 
 amounts of money. You can also add a "restore to date" feature so that a user 
 can reverse out changes to the system easily and in an auditable way. 
 Such killer features that are easy to add when using the techniques 
 documented here but are very expensive to code into a system that isn't 
-using these techniques. Such logic sits nicely into the service classes 
-that can update the version fields of the root entities when saving them, 
-can then query for a list of versions and modification dates, and finally 
-load a specific version of a root entity. The root entities themselves 
-have the logic to version the entities of the objects they control and 
-can have getter methods that take a date to be able to filter entities 
-in the aggregate that we current at that date. 
+using these techniques. 
 
-**Use A Locking Pattern.** Add either optimistic, or both pessimistic 
-and optimistic locking capabilities, into every root entity. This is 
+Such audit logic sits nicely into the service classes that can update the 
+version fields of the root entities when saving them, can then query for 
+a list of versions with modification dates, and can then load a specific 
+version of a root entity. The root entities themselves have the logic to 
+version the entities of the objects they control. They can also have getter 
+methods that take a date to be able to filter entities within the aggregate 
+to a specific historic point in time.  
+
+**Use A Locking Pattern.** Add either optimistic, or both optimistic and 
+pessimistic locking capabilities, into every root entity. This is 
 remarkably easy as all modifications go via the root entity and saving 
-and updating always saves the root entity. So you only need to put fields 
+or updating always saves the root entity. So you only need to put fields 
 to support these patterns in the root entities. JPA has locking features 
 that easily generate the queries for you. 
 
-I have used the built in optimistic locking and it was simple and easy. 
+I have used the built-in JPA optimistic locking and it was simple and easy. 
 With pessimistic locking we had custom logic to tell the users things were 
-locked and to let them break locks. This was implemented it as normal fields 
-on the root entities and "obvious" queries and logic in the service classes 
-to query the lock fields and to honour them unless the user told the service 
-class to break the lock. The service class could easily audit that the lock 
-was overruled. If you let people override pessimistic locks then you should 
-use optimistic locking to stop two users doing updates to the same root 
-entity with a broken clashing. 
+locked and to let them break locks. This was implemented as normal fields 
+`Date lockedAt` and `String lockedBy` fields on all the root entities and 
+"obvious" queries and logic in the service classes to either honour or break 
+a lock. The service class could easily audit that the user had asked to 
+override the lock. If you do let people override pessimistic locks then 
+you should also use optimistic locking to stop users breaking the lock and 
+overwriting each others changes. 
 
 ### Concluding remarks
 

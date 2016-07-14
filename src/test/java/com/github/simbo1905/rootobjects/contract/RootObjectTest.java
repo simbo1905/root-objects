@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.is;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:dataSourceContext.xml","classpath:application-context.xml"})
 @Transactional
-public class RootObjectTests {
+public class RootObjectTest {
 
 	@Autowired
 	protected DataSource dataSource;

@@ -14,9 +14,7 @@ Eric Evans is [here](https://lostechies.com/jimmybogard/2008/05/21/entities-valu
 
 ### Running The Code
 
-The code is written using IntelliJ community edition. Create a new project "from source" selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. 
-
-You can build the code with commandline maven but for some reason the unit test isn't being run automatically. Since the idea is to read the code not use it as a template or library fixing this is low priority to me. 
+The code is written using IntelliJ community edition. Create a new project "from source" selecting "maven" as the type. You can then run the test class which roundtrips all the objects to a database. You can run the tests on the commanline with `mvn test` 
 
 ### The Problem Space
 
@@ -285,20 +283,21 @@ and only expose the service classes, root entities, and core business
 concepts, and force client code to go via a narrow public API. This helps 
 keep bugs at bay and allows you to add or refactor logic with confidence. 
 It also makes it easy to add sophisticated and professional features like 
-locking patterns, audit trails, and "restore to date" features just inside 
-of the narrow public API. 
+locking patterns, audit trails, and "restore to date" just inside of the 
+narrow public API. 
 
-Java didn't make `public` the default it made `package private` the default. 
-Tragically that excellent hint how to write good OO/DDD code is ignored by the 
-vast majority of Java developers. This is an epic fail. Package private is 
-awesome as you can put your test code into the same package to be able to 
-setup and verify fine grained unit tests whilst only exposing a minimal 
-public API to code outside of the package. The unit tests in this sample 
-code demonstrate this approach. 
+Java didn't make `public` the default it made "package private" the default. 
+Tragically that excellent hint as to how to write good OO/DDD code is 
+ignored by the vast majority of Java developers. This is an epic fail. 
+Package private is awesome as you can put your test code into the same 
+package to be able to setup and verify fine grained unit tests whilst 
+only exposing a minimal public API to code outside of the package. The 
+unit tests in this sample code demonstrate this approach. 
 
 The optimal package layout for DDD is one where the compiler enforces 
-boundaries that separate concepts within the business domain. Package private 
-by default and a minimal public API is a great tool to achieve this. 
+boundaries that separate core concepts in the business domain. Making as 
+much as possible package private and only exposing a minimal public API 
+is a great tool to achieve this. 
 
 ### See Also
 

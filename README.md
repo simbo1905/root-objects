@@ -3,7 +3,7 @@
 
 A friend with a relational database background was working on an OO 
 domain modelling problem. I started talking about "aggregates" and "roots" 
-and to saying things like "make the contract entity an aggregate 
+and things like "make the contract entity an aggregate 
 controlling the other entities" and that "external logic 
 should speak to the object model via a few root entities". This demo 
 project is some Java code to demonstrate those concepts. 
@@ -46,19 +46,22 @@ UML "composition". To quote wikipedia (ephasis mine and with very minor edits):
 > “has a” relationship, as the composite object takes ownership of the 
 > component. This means the composite is responsible for the **creation and 
 > destruction** of the component parts. A [contained] object may only be part 
-> of one composite. If the composite object is destroyed, all the [contained  
+> of one composite. If the composite object is destroyed, all the [contained 
 > objects] must be destroyed 
 
 Simply put we are saying that the `contract` owns and controls both the `deliveries` and 
 `lineitems` that it contains. If the `contract` gets cancelled or deleted then 
-all the `lineitems` are cancelled and deleted. Also in this eample updating 
+all the `lineitems` are cancelled and deleted. Also in this example updating 
 the quantity of a `product` in the `contract` or adding and removing `deliveries` 
-to the `contract` implies we are updating the `contract`.  
+to the `contract` implies we are updating the `contract`. Is this valid? 
+Only if the users of the system agree with this way of describing the problem 
+domain. We should prototype with this model and get feedback from the users
+to validate the design. 
 
 The `product` and `contract` classes are labelled as root entities. To 
 quote the blog page at the link above: 
 
-> Aggregates draw a boundary around one or more Entities.  
+> Aggregates draw a boundary around one or more Entities. 
 > An Aggregate enforces invariants for all its Entities 
 > for any operation it supports.  Each Aggregate has a Root 
 > Entity, which is the only member of the Aggregate that any 
@@ -115,10 +118,14 @@ A lot of developers think that working with an RDBM isn't at all agile.
 Yet you can have JPA create tables into an in-memory java database for JUnit 
 testing as you write the code. That is pretty agile. This demo code does 
 exactly that. It is then only a matter of packaging and deploying a different 
-configuration point your application at a beefy industrial database server. 
+configuration pointing your application at a beefy industrial database server. 
 Having worked on a few projects that did that we ran into very few challenges 
 with differences in behaviour between the Java RDBMS and the commercial 
-database server that were trivial to work-around. 
+database server. Why? Because JPA is a mature abstraction over many differnt 
+database by many vendors. Some folks state that you can only code against the same 
+project as they will go-live and then live with no agility. Sure if you are 
+writing custom code you have to write against what you are tagetting; but 
+if you are targetting JPA then its a minor 
 
 Also if there is any ugliness due to our use of JPA then we can use that to 
 illustrate a point in this demo: that the database and its mapping is an 
@@ -250,24 +257,67 @@ to a specific historic point in time.
 
 **Use A Locking Pattern.** Add either optimistic, or both optimistic and 
 pessimistic locking capabilities, into every root entity. This is 
-remarkably easy as all modifications go via the root entity and saving 
-or updating always saves the root entity. So you only need to put fields 
-to support these patterns in the root entities. JPA has locking features 
-that easily generate the queries for you. 
+remarkably easy as all modifications go via the root entity. So only root 
+entities need locking fields.
 
-I have used the built-in JPA optimistic locking and it was simple and easy. 
+JPA has locking features. I have used the built-in JPA optimistic locking. 
 With pessimistic locking we had custom logic to tell the users things were 
-locked and to let them break locks. This was implemented as normal fields 
+locked, and let them break locks. This was implemented as normal fields 
 `Date lockedAt` and `String lockedBy` fields on all the root entities and 
-"obvious" queries and logic in the service classes to either honour or break 
+simple queries and logic in the service classes to either honour or break 
 a lock. The service class could easily audit that the user had asked to 
-override the lock. If you do let people override pessimistic locks then 
-you should also use optimistic locking to stop users breaking the lock and 
-overwriting each others changes. 
+break a lock. If you do let people override pessimistic locks then you 
+should also use optimistic locking to stop user overwriting each others 
+changes. 
 
 ### Concluding remarks
 
-The source code has very few public classes or methods. This is unsual 
+#####Where's The Application? 
+
+If you look at the sourcecode there is no front-end, no web servlets, no 
+screens, and no Java main class, and so no way to run it as an application. 
+All that you can do is run the test class. So it is a library project. It 
+is a rich "back-end" that can talk to a database. A good back-end library 
+should be agnostic to the specific screens or workflow that it is supporting. 
+
+It is a bad idea to directly share such a rich domain library between many 
+front-ends or processes that collectively form a platform. If you needed 
+to refactor the database schema for new business logic (or for performance) 
+every process would need to upgrade. When a front-end maintained by another 
+team tries to upgrade they may well break if they depend upon idiosyncrasies 
+of a given version of the library. 
+
+Can we fix this by running all the downstream 
+projects on a nightly build to see when the maintainers of the rich library 
+make a change that breaks them? Sure. But that doesn't solve the problem if we 
+find that the many downstream projects break in strange ways when we make 
+"basic" changes to the library. Too much coupling between teams is a killer. 
+Even with one small team, sharing a rich domain model between processes with 
+different upgrade cadences causes maintenance headaches. 
+
+Rather than distributing a rich domain model as a library wrap it in a restful 
+business API. The business API should model a stand-alone platform service. 
+The business API can use one or a few root entities that are enough to 
+"do something" sufficiently stand-alone. Such services should expose as little 
+as they can get away with at each release. The outside of the public business 
+APIs should be a narrow and long supported contract. 
+
+Such an approach is often described 
+as a "share nothing" architecture. You cannot actually share nothing
+and be part of the same platform. Better to described it as "share 
+as little as possible" and try to only share stable identifiers such as 
+"user name", "order number", "product sku". These are typically the 
+visible identities of the root entities exposed by the services. 
+
+Examples? In a simple e-commerce website can have one service that deals 
+only with customers, managing their addresses and payment details. Another 
+manages products. Another that just hold product search logic. Another doing 
+order fulfilment. In theory each could be written in different programming 
+lanuages and be maintained by different teams.
+
+#####Information Hiding: Don't Abuse `public`
+
+The source code has very few public classes or methods. This is unusual 
 for Java projects. Typically Java projects have package layouts that 
 model the solution; "this package has all the entities, that package has all 
 database related code, that package is all the services code". That approach 

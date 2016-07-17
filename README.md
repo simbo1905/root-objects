@@ -310,10 +310,16 @@ as little as possible" and try to only share stable identifiers such as
 visible identities of the root entities exposed by the services. 
 
 Examples? In a simple e-commerce website can have one service that deals 
-only with customers, managing their addresses and payment details. Another 
-manages products. Another that just hold product search logic. Another doing 
-order fulfilment. In theory each could be written in different programming 
-lanuages and be maintained by different teams.
+only with customers managing their addresses and payment details. Another 
+manages products. Another that just searches products. Another doing 
+order fulfilment. Another doing proudct recommendations to users. In theory 
+each could be written in different programming languages, using different 
+data stores, and be maintained by different teams. Then we can have both a 
+pubic website, and a secure customer support application, that both make 
+use of the business. These two front-ends can be deployed separately to each 
+other and the business services that they use. Each business service can be 
+deployed separately to add new capability to support one or the other of 
+the front-ends.  
 
 #####Information Hiding: Don't Abuse `public`
 

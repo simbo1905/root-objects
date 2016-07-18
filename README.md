@@ -191,6 +191,15 @@ full audit train. Just add:
  * `Date deletedAt` 
  * `String deletedBy`
 
+Just like assigned PKs that can make JPA easier to work with you don't need 
+to make such persistence detail fields `public`. The demo puts everything 
+to do with an aggregate of entities into a single package named after the 
+root entity. This includes entities, the repository class, and a mini-service 
+class that lets you only find, load and save entities. You can have the 
+mini-service class read the package private fields to answer questions 
+about the audit history so that they don't leak into your domain model 
+as they are not visible outside of the package. 
+
 Have the root entity at every mutation or deletion simply create 
 a copy of the entity that updates these fields. In all the normal getters 
 filter to show only the highest version of each entity. You can also add 

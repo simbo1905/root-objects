@@ -43,6 +43,12 @@ public class Contract {
         return name;
     }
 
+    /**
+     * This isn't public as you would probably want to use some human readable string "contract number" with an index
+     * on it as the human searchable key. Sticking with package protected assigned longs make it easier to not have to
+     * fight JPA.
+     * @return
+     */
     Long getContractId() {
         return contractId;
     }

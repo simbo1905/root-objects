@@ -178,10 +178,10 @@ to modify anything. To load and save contract objects you use a public
 
 In the code we have both a public `ContractService` and a package private 
 `ContractRepository` that is not visible outside of the `contract` package. 
-We also have a repository per entity in the aggregate that is not public. 
-Why? As JPA has [no helpful abstraction for root entities](http://scabl.blogspot.co.uk/2015/03/aeddd-5.html). 
-To prevent people from going aroudn the root entity to the aggregate entities 
-we hide their JPA helper classes, that may have specific finder XXX going via working via root entity we have to 
+Why? The service class may grow to have larger persistence relating concerns, 
+such as custom logic to honour or override pessimistic locks, or to work 
+with an auditing trail. By makign sure that the repository is not public 
+we prevent people coding around it. 
 
 ### Pro-Tips For Industrial Strength Financial Code
 

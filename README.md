@@ -230,4 +230,4 @@ changes.
 
 ### See Also
 
-See also the discussion on the ["exposed domain model pattern"](http://codereview.stackexchange.com/questions/93511/data-transfer-objects-vs-entities-in-java-rest-server-application/93533#93533)
+See also [Advancing Enterprise DDD](http://scabl.blogspot.co.uk/2015/03/aeddd-5.html) and this stackexchange answer about the ["exposed domain model pattern"](http://codereview.stackexchange.com/questions/93511/data-transfer-objects-vs-entities-in-java-rest-server-application/93533#93533). 

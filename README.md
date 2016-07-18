@@ -180,8 +180,16 @@ In the code we have both a public `ContractService` and a package private
 `ContractRepository` that is not visible outside of the `contract` package. 
 Why? The service class may grow to have larger persistence relating concerns, 
 such as custom logic to honour or override pessimistic locks, or to work 
-with an auditing trail. By makign sure that the repository is not public 
-we prevent people coding around it. 
+with an auditing trail. By making sure that the repository is not public 
+we prevent people coding around it. Also the object to relational mismatch 
+makes it hard to to get JPA do to exactly what you want to with only 
+annotations in the code. The service class gives you an location to put 
+workaround code that spans aggregated entities and their repositories. 
+
+Should such a class be called a service class if it just does JPA logic? 
+Perhaps not. It could be renamed to be a "RootStore" to indicate that it 
+is about persistence of a root entity. Then the name "Service" can be 
+reserved for the business logic code higher up in the application. 
 
 ### Pro-Tips For Industrial Strength Financial Code
 

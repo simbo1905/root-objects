@@ -1,16 +1,7 @@
 
-# Entities, Value Objects, Aggregates and Roots with JPA
+# Domain Driven Design: Entities, Value Objects, Aggregates and Roots with JPA
 
-A friend with a relational database background was working on an OO 
-domain modelling problem. I started talking about "aggregates" and "roots" 
-and things like "make the contract entity an aggregate 
-controlling the other entities" and that "external logic 
-should speak to the object model via a few root entities". This demo 
-project is some Java code to demonstrate those concepts. 
-
-A quick introduction to the entities, aggregates, value objects and roots 
-with a links into the seminal textbook Domain Driven Design by 
-Eric Evans is [here](https://lostechies.com/jimmybogard/2008/05/21/entities-value-objects-aggregates-and-roots/). 
+This sample app is written up as a [series of blog posts](https://simbo1905.wordpress.com/category/domain-drive-design/). 
 
 ### Running The Code
 
@@ -97,41 +88,6 @@ as we evolve the logic of that class.
 The book [Domain Driven Design by Eric Evans](http://domainlanguage.com/ddd/) has the theory of how to do design 
 this way and the book [Pojos In Action by Chris Richardson](https://www.manning.com/books/pojos-in-action) is an 
 old but excellent book on how to do DDD in Java with Spring. 
-
-### Detour: JPA? 
-
-For the purposes of this demo JPA is an officially supported part of the 
-Java ecosystem and is a mature and well documented Java-to-relational 
-mapping tool. Yes it has a number of quirks. If you fight 
-it your probably going to loose (your mind). If you learn how to do the 
-basics and don't deviate from that it can be a used as a rapid application 
-tool to support an agile TDD build on Java against a relational datbase. 
-
-Why is JPA not universally loved? I would say that it is not because JPA 
-isn't a serious bit of technology that has had a huge amount of investment 
-in it. It is because of the famous [object to relational impedance mis-match](https://en.wikipedia.org/wiki/Object-relational_impedance_mismatch). 
-Functional programmers will say that the problem is actually that OO is 
-a concept with many traps and limited utility but that is an entirely 
-different topic. 
-
-A lot of developers think that working with an RDBM isn't at all agile. 
-Yet you can have JPA create tables into an in-memory java database for JUnit 
-testing as you write the code. That is pretty agile. This demo code does 
-exactly that. It is then only a matter of packaging and deploying a different 
-configuration pointing your application at a beefy industrial database server. 
-Having worked on a few projects that did that we ran into very few challenges 
-with differences in behaviour between the Java RDBMS and the commercial 
-database server. Why? Because JPA is a mature abstraction over many differnt 
-database by many vendors. Some folks state that you can only code against the same 
-project as they will go-live and then live with no agility. Sure if you are 
-writing custom code you have to write against what you are tagetting; but 
-if you are targetting JPA then its a minor 
-
-Also if there is any ugliness due to our use of JPA then we can use that to 
-illustrate a point in this demo: that the database and its mapping is an 
-implementation detail that should be hidden from code that uses our object model. 
-So the ugliness isn't exposed to users of the entities it is kept as an 
-hidden implementation detail. 
 
 ### The Implementation
 
@@ -269,91 +225,6 @@ a lock. The service class could easily audit that the user had asked to
 break a lock. If you do let people override pessimistic locks then you 
 should also use optimistic locking to stop user overwriting each others 
 changes. 
-
-### Concluding remarks
-
-#####Where's The Application? 
-
-If you look at the sourcecode there is no front-end, no web servlets, no 
-screens, and no Java main class, and so no way to run it as an application. 
-All that you can do is run the test class. So it is a library project. It 
-is a rich "back-end" that can talk to a database. A good back-end library 
-should be agnostic to the specific screens or workflow that it is supporting. 
-
-It is a bad idea to directly share such a rich domain library between many 
-front-ends or processes that collectively form a platform. If you needed 
-to refactor the database schema for new business logic (or for performance) 
-every process would need to upgrade. When a front-end maintained by another 
-team tries to upgrade they may well break if they depend upon idiosyncrasies 
-of a given version of the library. 
-
-Can we fix this by running all the downstream 
-projects on a nightly build to see when the maintainers of the rich library 
-make a change that breaks them? Sure. But that doesn't solve the problem if we 
-find that the many downstream projects break in strange ways when we make 
-"basic" changes to the library. Too much coupling between teams is a killer. 
-Even with one small team, sharing a rich domain model between processes with 
-different upgrade cadences causes maintenance headaches. 
-
-Rather than distributing a rich domain model as a library wrap it in a restful 
-business API. The business API should model a stand-alone platform service. 
-The business API can use one or a few root entities that are enough to 
-"do something" sufficiently stand-alone. Such services should expose as little 
-as they can get away with at each release. The outside of the public business 
-APIs should be a narrow and long supported contract. 
-
-Such an approach is often described 
-as a "share nothing" architecture. You cannot actually share nothing
-and be part of the same platform. Better to described it as "share 
-as little as possible" and try to only share stable identifiers such as 
-"user name", "order number", "product sku". These are typically the 
-visible identities of the root entities exposed by the services. 
-
-Examples? In a simple e-commerce website can have one service that deals 
-only with customers managing their addresses and payment details. Another 
-manages products. Another that just searches products. Another doing 
-order fulfilment. Another doing proudct recommendations to users. In theory 
-each could be written in different programming languages, using different 
-data stores, and be maintained by different teams. Then we can have both a 
-pubic website, and a secure customer support application, that both make 
-use of the business. These two front-ends can be deployed separately to each 
-other and the business services that they use. Each business service can be 
-deployed separately to add new capability to support one or the other of 
-the front-ends.  
-
-#####Information Hiding: Don't Abuse `public`
-
-The source code has very few public classes or methods. This is unusual 
-for Java projects. Typically Java projects have package layouts that 
-model the solution; "this package has all the entities, that package has all 
-database related code, that package is all the services code". That approach 
-forces you to make almost everything public. In the long term on a big project 
-brittle connections are made across business responsibility boundaries. There 
-is no way the compiler can enforce boundaries that align to the business 
-domain. 
-
-With DDD you model the problem space not the solution; "this package 
-is everything to support contracts, that package holds everything for 
-products, that package is all about customers". Then you can be very strict 
-and only expose the service classes, root entities, and core business 
-concepts, and force client code to go via a narrow public API. This helps 
-keep bugs at bay and allows you to add or refactor logic with confidence. 
-It also makes it easy to add sophisticated and professional features like 
-locking patterns, audit trails, and "restore to date" just inside of the 
-narrow public API. 
-
-Java didn't make `public` the default it made "package private" the default. 
-Tragically that excellent hint as to how to write good OO/DDD code is 
-ignored by the vast majority of Java developers. This is an epic fail. 
-Package private is awesome as you can put your test code into the same 
-package to be able to setup and verify fine grained unit tests whilst 
-only exposing a minimal public API to code outside of the package. The 
-unit tests in this sample code demonstrate this approach. 
-
-The optimal package layout for DDD is one where the compiler enforces 
-boundaries that separate core concepts in the business domain. Making as 
-much as possible package private and only exposing a minimal public API 
-is a great tool to achieve this. 
 
 ### See Also
 

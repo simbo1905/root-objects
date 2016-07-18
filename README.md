@@ -174,8 +174,14 @@ By applying the same approach everywhere we arrange it so that you can "see" bot
 `contract`, `lineitem` and `delivery` objects outside of the package that 
 they are defined in; but you have to call methods on the `contract` objects 
 to modify anything. To load and save contract objects you use a public 
-`ContractServce` system class that has methods to query the database to 
-load contracts. 
+`ContractServce` class that has methods to query the database to load contracts. 
+
+In the code we have both a public `ContractService` and a package private 
+`ContractRepository` that is not visible outside of the `contract` package. 
+We also have a repository per entity in the aggregate that is not public. 
+Why? As JPA has [no helpful abstraction for root entities](http://scabl.blogspot.co.uk/2015/03/aeddd-5.html). 
+To prevent people from going aroudn the root entity to the aggregate entities 
+we hide their JPA helper classes, that may have specific finder XXX going via working via root entity we have to 
 
 ### Pro-Tips For Industrial Strength Financial Code
 

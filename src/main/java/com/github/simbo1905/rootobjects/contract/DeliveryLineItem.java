@@ -31,14 +31,6 @@ class DeliveryLineItem {
         this.lineItem = lineItem;
     }
 
-//    public Long getDeliveryId() {
-//        return this.delivery.deliveryId();
-//    }
-//
-//    public Long getLineItemId() {
-//        return this.lineItem.lineItemId();
-//    }
-
     public Long getDeliveryLineItemId() {
         return deliveryLineItemId;
     }

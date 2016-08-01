@@ -14,7 +14,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product findByName(String name) {
-        return productRepository.findByName(name);
+    public Product findBySku(String name) {
+        return productRepository.findBySku(name);
     }
 }

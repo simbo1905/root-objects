@@ -7,7 +7,7 @@ This sample app is written up as a [series of blog posts](https://simbo1905.word
 
 You can run the tests on the commandline with `mvn test`. The code is written using IntelliJ community edition. Create a new project "from source" selecting "maven" as the type. You can then run the test class which round-trips all the objects to an in-memory database.  
 
-The diagrams are authored with UMLet. 
+The diagrams are authored with the excellent and free [UMLet](http://www.umlet.com). 
 
 ### The Problem Space
 

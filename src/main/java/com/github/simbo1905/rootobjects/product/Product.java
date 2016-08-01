@@ -13,8 +13,11 @@ public class Product {
     @Column(name = "PRODUCT_ID", nullable=false, updatable=false)
     private Long id;
 
-    @Column(name = "NAME")
-    private String name = "";
+    @Column(name = "SKU", unique=true)
+    private String sku = "";
+
+    @Column(name = "DESCRIPTION")
+    private String description = "";
 
     @Embedded
     private Money price = new Money("USD", new BigDecimal(0));
@@ -25,16 +28,21 @@ public class Product {
 
     Product() {}
 
-    public Product(String name, Money price) {
-        this.name = name;
+    public Product(String sku, String description, Money price) {
+        this.sku = sku;
+        this.description = description;
         this.price = price;
     }
 
-    public String getName() {
-        return name;
+    public String getSku() {
+        return sku;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

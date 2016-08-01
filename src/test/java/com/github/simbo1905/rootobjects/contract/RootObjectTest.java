@@ -61,9 +61,10 @@ public class RootObjectTest {
 	@Test
 	public void testProductRespository() throws Exception {
 		final String name = "Heavy Tank";
-		final Product product = new Product(name, FIVE_MILLION_USD);
+        final String sku = "HT01";
+		final Product product = new Product(sku, name, FIVE_MILLION_USD);
 		productService.save(product);
-		final Product loaded = productService.findByName(name);
+		final Product loaded = productService.findBySku(sku);
 		Assert.assertTrue(product.getId() == loaded.getId());
 	}
 
@@ -137,7 +138,7 @@ public class RootObjectTest {
 
     private LineItem lineItemWithContract() {
         final String pname = "Heavy Tank";
-        final Product product = new Product(pname, FIVE_MILLION_USD);
+        final Product product = new Product("HT01", pname, FIVE_MILLION_USD);
         productService.save(product);
 
         final String cname = "Heavy Tank Contract";
@@ -151,7 +152,7 @@ public class RootObjectTest {
 
         final Contract loaded = this.contractService.loadByName("Heavy Tank Contract");
         Assert.assertNotNull(loaded);
-        Assert.assertThat(loaded.getLineItems().get(0).getProduct().getName(), is(pname));
+        Assert.assertThat(loaded.getLineItems().get(0).getProduct().getDescription(), is(pname));
         Assert.assertTrue(loaded.getTotalCost().equals(TEN_MILLION_USD));
 
         return lineItem;
@@ -191,7 +192,7 @@ public class RootObjectTest {
 
     private DeliveryLineItem contractWithDeliveryLineItem() {
         final String pname = "Heavy Tank";
-        final Product product = new Product(pname, FIVE_MILLION_USD);
+        final Product product = new Product("HT01", pname, FIVE_MILLION_USD);
         productService.save(product);
         final String cname = "Heavy Tank Contract";
         final Contract contract = new Contract(cname);
@@ -253,7 +254,7 @@ public class RootObjectTest {
 
         {
             // save a contract, two deliveries, and one line item in the moscow delivery
-            final Product product = new Product(pname, FIVE_MILLION_USD);
+            final Product product = new Product("HT01", pname, FIVE_MILLION_USD);
             productService.save(product);
             contract.createDelivery(new Date(), "London");
             final Delivery moscow = contract.createDelivery(new Date(), "Moscow");
@@ -275,7 +276,7 @@ public class RootObjectTest {
             Assert.assertEquals("Moscow", loadedMoscow.getLocation());
             final LineItem loadedLineItem = loadedMoscow.getLineItems().get(0);
             Assert.assertEquals(loadedMoscow, loadedLineItem.delivery.get());
-            Assert.assertEquals("Heavy Tank", loadedLineItem.getProduct().getName());
+            Assert.assertEquals("Heavy Tank", loadedLineItem.getProduct().getDescription());
 
             final Delivery loadedLondon =
                     loadContract.getDeliveries().stream().filter(
@@ -285,7 +286,7 @@ public class RootObjectTest {
             loadContract.addLineItemToDelivery(loadedLineItem, loadedLondon);
 
             // it has moved between deliveries
-            Assert.assertEquals(pname, loadedLondon.getLineItems().get(0).getProduct().getName());
+            Assert.assertEquals(pname, loadedLondon.getLineItems().get(0).getProduct().getDescription());
             Assert.assertTrue(loadedMoscow.getLineItems().isEmpty());
             Assert.assertEquals(loadedLondon, loadedLineItem.delivery.get());
         }

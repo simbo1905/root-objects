@@ -248,8 +248,8 @@ locked, and let them break locks. This was implemented as normal fields
 simple queries and logic in the service classes to either honour or break 
 a lock. The service class could easily audit that the user had asked to 
 break a lock. If you do let people override pessimistic locks then you 
-should also use optimistic locking to stop user overwriting each others 
-changes. 
+should think about also use optimistic locking to stop users overwriting each others 
+changes without being aware of it.
 
 ### See Also
 

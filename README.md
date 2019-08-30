@@ -85,7 +85,10 @@ Consider the business rule that a `lineitem` can only be within one
 If we don't it is a corruption of the state of a `contract`. So we should 
 keep the logic that stops it from getting corrupted within it. That logic will 
 be tested when we test that class and will be easier to keep working 
-as we evolve the logic of that class. 
+as we evolve the logic of that class. We can find all 
+contract related business logic in one place tested by one set of  
+unit tests. This is a far better default strategy than spreading related 
+logic throughout fine grained classes.
 
 The book [Domain Driven Design by Eric Evans](http://domainlanguage.com/ddd/) has the theory of how to do design 
 this way and the book [Pojos In Action by Chris Richardson](https://www.manning.com/books/pojos-in-action) is an 

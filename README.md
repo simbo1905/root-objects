@@ -1,7 +1,7 @@
 
 # Domain Driven Design: Entities, Value Objects, Aggregates and Roots with JPA
 
-This sample app is written up as a [series of blog posts](https://simbo1905.blog/category/jpaddd/). 
+This sample app is written up as a [series of blog posts](https://simbo1905.wordpress.com/category/jpaddd/). 
 
 ### Running Or Modifying The Code
 

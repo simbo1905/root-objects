@@ -14,8 +14,8 @@
 	</repositories>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>5.3.33</spring.version>
-		<spring-data-jpa.version>1.11.22.RELEASE</spring-data-jpa.version>
+		<spring.version>6.1.14</spring.version>
+		<spring-data-jpa.version>3.2.11</spring-data-jpa.version>
 		<hibernate-entitymanager.version>4.3.11.Final</hibernate-entitymanager.version>
 		<commons-dbcp.version>1.4</commons-dbcp.version>
 		<junit.version>4.13.1</junit.version>
